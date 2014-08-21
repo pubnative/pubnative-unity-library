@@ -17,7 +17,8 @@ namespace Pubnative
         public Texture2D banner;
         public Texture2D portrait_banner;
 
-        private PNNativeModel data = null;
+        public PNNativeModel data = null;
+        
         private int readyCounter = 0;
 
         protected override string APIName ()

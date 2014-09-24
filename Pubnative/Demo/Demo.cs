@@ -67,10 +67,13 @@ public class Demo : MonoBehaviour
 
     private Rect CenteredButtonRect(float widthPercent, float heightPercent, int position)
     {
-        float xPosition = (Screen.width / 2) - (Screen.width * widthPercent / 2);
-        float yPosition = heightPercent * position;
+        float screenWidth = Screen.width * widthPercent;
+        float screenHeight = Screen.height * heightPercent;
 
-        return new Rect (xPosition, yPosition, Screen.width * widthPercent, Screen.height * heightPercent);
+        float xPosition = (Screen.width / 2) - (screenWidth / 2);
+        float yPosition = screenHeight * position;
+
+        return new Rect (xPosition, yPosition, screenWidth, screenHeight);
     }
 
     private void OnGUI()

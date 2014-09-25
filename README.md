@@ -99,7 +99,7 @@ private void HandleFail()
 
 private void OpenAd ()
 {
-	image.Open();
+	image.Open();1111
 }
 ```
 

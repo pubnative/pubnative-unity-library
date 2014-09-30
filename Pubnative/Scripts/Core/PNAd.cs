@@ -1,4 +1,6 @@
 using UnityEngine;
+using Pubnative;
+using Pubnative.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,15 +23,15 @@ namespace Pubnative.Core
 
         public const string REQUEST_APP_TOKEN           = "app_token";
         public const string REQUEST_BUNDLE_ID           = "bundle_id";
-        public const string REQUEST_APPLE_IDFA          = "apple_idfa";
-        public const string REQUEST_ANDROD_ID           = "android_id";
-
+        
         private const string REQUEST_OS_NAME            = "os";
         private const string REQUEST_OS_VERSION         = "os_version";
         private const string REQUEST_DEVICE_MODEL       = "device_model";
         private const string REQUEST_DEVICE_RESOLUTION  = "device_resolution";
+        private const string REQUEST_APPLE_IDFA         = "apple_idfa";
+        private const string REQUEST_ANDROID_ID         = "android_id";
         private const string REQUEST_NO_USER_ID         = "no_user_id";
-
+        
         private const string REQUEST_NO_USER_ID_VALUE   = "1";
 
         #endregion
@@ -84,41 +86,47 @@ namespace Pubnative.Core
             string version = string.Empty;
             string deviceModel = string.Empty;
             string deviceResolution = String.Format("{0}x{1}", Screen.width, Screen.height);
+            string userIDKey = REQUEST_NO_USER_ID;
+            string userID = PNUtils.UserID();
+            
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             os = "ios";
             version = "7.1.1";
             deviceModel = WWW.EscapeURL("iPhone5");
-            AddParameter(REQUEST_NO_USER_ID, REQUEST_NO_USER_ID_VALUE);
-            #elif UNITY_IOS
+#elif UNITY_IOS
             os = "ios";
             version = WWW.EscapeURL(SystemInfo.operatingSystem.Replace("iPhone OS ", ""));
             deviceModel = WWW.EscapeURL(SystemInfo.deviceModel);
+            userIDKey = REQUEST_APPLE_IDFA;
+
             if(deviceModel.Equals("x86_64"))
             {
                 deviceModel="iPhone5";
             }
-            if(!requestParameters.ContainsKey(REQUEST_APPLE_IDFA))
-            {
-                AddParameter(REQUEST_NO_USER_ID, REQUEST_NO_USER_ID_VALUE);
-            }
-
-            #elif UNITY_ANDROID
+#elif UNITY_ANDROID
             os = "android";
             IntPtr clazz = AndroidJNI.FindClass("android.os.Build$VERSION");
             IntPtr field = AndroidJNI.GetStaticFieldID(clazz, "RELEASE", AndroidJNIHelper.GetSignature(""));
             version = WWW.EscapeURL(AndroidJNI.GetStaticStringField(clazz, field));
             deviceModel = WWW.EscapeURL(SystemInfo.deviceModel);
-            if(!requestParameters.ContainsKey(REQUEST_ANDROID_ID))
-            {
-                AddParameter(REQUEST_NO_USER_ID, REQUEST_NO_USER_ID_VALUE);
-            }
-            #endif
-
+            userIDKey = REQUEST_ANDROID_ID;
+#endif
             AddParameter(REQUEST_OS_NAME, os);
             AddParameter(REQUEST_OS_VERSION, version);
             AddParameter(REQUEST_DEVICE_MODEL, deviceModel);
             AddParameter(REQUEST_DEVICE_RESOLUTION, deviceResolution);
+
+            Debug.Log("UserIDKey: " + userIDKey + " - UserID: " + userID);
+
+            if(string.IsNullOrEmpty(userID))
+            {
+                AddParameter(REQUEST_NO_USER_ID, REQUEST_NO_USER_ID_VALUE);
+            }
+            else
+            {
+                AddParameter(userIDKey, userID);   
+            }
 
             //Create request URL
             string url = string.Format("{0}{1}?", server_url, APIName());

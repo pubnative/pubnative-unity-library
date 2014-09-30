@@ -1,0 +1,25 @@
+{
+    "group": "Pubnative",
+    "libs": [
+    ],
+    "frameworks": [
+        "AdSupport.framework"
+    ],
+    "headerpaths": [
+    ],
+    "files": [
+        "PubnativePlugin.h",
+        "PubnativePlugin.mm"
+    ],
+    "folders": [
+    ],
+    "excludes": [
+        "^.*.meta$",
+        "^.*.mdown$"
+    ],
+    "compiler_flags": [
+    ],
+    "linker_flags": [
+        "-ObjC"
+    ]
+}

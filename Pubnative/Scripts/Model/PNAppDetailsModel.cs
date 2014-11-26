@@ -82,10 +82,12 @@ namespace Pubnative.Model
         private List<string> ToList(ArrayList items)
         {
             List<string> result = new List<string>();
-
-            foreach(string item in items)
+            if(items != null)
             {
-                result.Add(item);
+                foreach(string item in items)
+                {
+                    result.Add(item);
+                }
             }
             return result;
         }

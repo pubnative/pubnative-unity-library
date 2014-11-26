@@ -18,7 +18,7 @@ namespace Pubnative
         public Texture2D portrait_banner;
 
         public PNNativeModel data = null;
-        
+
         private int readyCounter = 0;
 
         protected override string APIName ()
@@ -35,48 +35,35 @@ namespace Pubnative
         {
             data = new PNNativeModel(ad);
 
-            RequestImage(data.icon_url, DownloadIconDelegate);
-            RequestImage(data.banner_url, DownloadBannerDelegate);
-            RequestImage(data.portrait_banner_url, DownloadPortraitDelegate);
-        }
-
-        private void DownloadIconDelegate(Texture2D texture)
-        {
-            if(texture != null)
+            RequestImage(data.icon_url, new ImageDownload(
+            (Texture2D texture) => 
             {
-                icon = texture;
+                if(texture != null)
+                {
+                    icon = texture;
+                }
                 CheckReady();
-            }
-            else
+            }));
+            
+            RequestImage(data.banner_url, new ImageDownload(
+            (Texture2D texture) => 
             {
-                InvokeFail();
-            }
-        }
-
-        private void DownloadBannerDelegate(Texture2D texture)
-        {
-            if(texture != null)
-            {
-                banner = texture;
+                if(texture != null)
+                {
+                    banner = texture;
+                }
                 CheckReady();
-            }
-            else
+            }));
+            
+            RequestImage(data.portrait_banner_url, new ImageDownload(
+            (Texture2D texture) => 
             {
-                InvokeFail();
-            }
-        }
-
-        private void DownloadPortraitDelegate(Texture2D texture)
-        {
-            if(texture != null)
-            {
-                portrait_banner = texture;
+                if(texture != null)
+                {
+                    portrait_banner = texture;
+                }
                 CheckReady();
-            }
-            else
-            {
-                InvokeFail();
-            }
+            }));
         }
 
         private void CheckReady()

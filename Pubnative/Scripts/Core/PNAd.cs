@@ -173,6 +173,11 @@ namespace Pubnative.Core
                     {
                         ParseAd(((Hashtable)rawAds[0]));
                     }
+                    else
+                    {
+                        Debug.Log("PubNative - No ads");
+                        InvokeFail();
+                    }
                 }
                 else
                 {
@@ -214,7 +219,15 @@ namespace Pubnative.Core
 
         protected void RequestImage(string url, ImageDownload downloadDelegate)
         {
-            StartCoroutine(RequestImageCoroutine(url, downloadDelegate));
+            if(url != null)
+            {
+                StartCoroutine(RequestImageCoroutine(url, downloadDelegate));
+            }
+            else
+            {
+                Debug.Log("PubNative - Image not provided by server");
+                downloadDelegate(null);
+            }
         }
 
         private IEnumerator RequestImageCoroutine(string url, ImageDownload downloadDelegate)

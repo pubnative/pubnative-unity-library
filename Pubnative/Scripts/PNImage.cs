@@ -26,22 +26,16 @@ namespace Pubnative
         {
             data = new PNImageModel(ad);
 
-            RequestImage(data.image_url, DownloadDelegate);
-        }
-
-        private void DownloadDelegate(Texture2D texture)
-        {
-            if(texture != null)
+            RequestImage(data.image_url, new ImageDownload(
+            (Texture2D texture) =>
             {
-                banner = texture;
+                if(texture != null)
+                {
+                    banner = texture;
+                }
                 InvokeReady();
-            }
-            else
-            {
-                InvokeFail();
-            }
+            }));
         }
-        
 
         public override void ConfirmImpression ()
         {

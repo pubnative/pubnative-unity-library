@@ -5,8 +5,8 @@ namespace Pubnative.Model
 {
     public class PNBeaconsModel
     {
-        private const string KEY_TYPE               = "click_url";
-        private const string KEY_URL                = "points";
+        private const string KEY_TYPE               = "type";
+        private const string KEY_URL                = "url";
 
         private const string TYPE_IMPRESSION_URL    = "impression";
 

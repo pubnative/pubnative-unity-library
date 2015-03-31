@@ -7,11 +7,11 @@
         "Foundation.framework",
         "UIKit.framework"
     ],
-    "headerpaths": [ "pubnative-library/PubNative/",
+    "headerpaths": [ "pubnative-library",
                      "pubnative-adapter",
                      "pubnative-utils" ],
     "files": [],
-    "folders": [ "pubnative-library/PubNative/:-fobjc-arc, -fobjc-exceptions",
+    "folders": [ "pubnative-library/:-fobjc-arc, -fobjc-exceptions",
                  "pubnative-adapter/:-fobjc-arc, -fobjc-exceptions",
                  "pubnative-utils/:-fobjc-arc, -fobjc-exceptions" ],
     "excludes": [ "^.*.meta$", "^.*.mdown$"],

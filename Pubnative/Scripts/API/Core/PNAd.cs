@@ -84,10 +84,10 @@ namespace Pubnative.Core
             //Initialize common parameters
             string os = string.Empty;
             string version = string.Empty;
-            string deviceModel = string.Empty;
+			string deviceModel = string.Empty;
             string deviceResolution = String.Format("{0}x{1}", Screen.width, Screen.height);
             string userIDKey = REQUEST_NO_USER_ID;
-            string userID = PNUtils.UserID();
+            string userID = "";
             
 
 #if UNITY_EDITOR
@@ -99,18 +99,16 @@ namespace Pubnative.Core
             version = WWW.EscapeURL(SystemInfo.operatingSystem.Replace("iPhone OS ", ""));
             deviceModel = WWW.EscapeURL(SystemInfo.deviceModel);
             userIDKey = REQUEST_APPLE_IDFA;
-
             if(deviceModel.Equals("x86_64"))
             {
                 deviceModel="iPhone5";
             }
+            
+			userID = PNUtils.UserID();
 #elif UNITY_ANDROID
             os = "android";
-            IntPtr clazz = AndroidJNI.FindClass("android.os.Build$VERSION");
-            IntPtr field = AndroidJNI.GetStaticFieldID(clazz, "RELEASE", AndroidJNIHelper.GetSignature(""));
-            version = WWW.EscapeURL(AndroidJNI.GetStaticStringField(clazz, field));
+			version = WWW.EscapeURL(SystemInfo.operatingSystem);
             deviceModel = WWW.EscapeURL(SystemInfo.deviceModel);
-            userIDKey = REQUEST_ANDROID_ID;
 #endif
             AddParameter(REQUEST_OS_NAME, os);
             AddParameter(REQUEST_OS_VERSION, version);
@@ -121,6 +119,7 @@ namespace Pubnative.Core
 
             if(string.IsNullOrEmpty(userID))
             {
+            	Debug.Log("NO_USER_ID DETECTED");
                 AddParameter(REQUEST_NO_USER_ID, REQUEST_NO_USER_ID_VALUE);
             }
             else

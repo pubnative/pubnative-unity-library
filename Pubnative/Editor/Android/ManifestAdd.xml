@@ -1,6 +1,7 @@
 <activity
             android:name="net.pubnative.interstitials.PubNativeInterstitialsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:hardwareAccelerated="true"
             android:taskAffinity="net.pubnative.interstitials"
             android:theme="@style/Theme.PubNativeInterstitials" />
     <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />

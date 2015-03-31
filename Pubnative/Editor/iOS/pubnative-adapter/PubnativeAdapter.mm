@@ -9,10 +9,11 @@
 #import "PubnativeAdapter.h"
 #import "Pubnative.h"
 
-typedef NS_ENUM(int, Adapter_AdType)
+typedef NS_ENUM(NSInteger, Adapter_AdType)
 {
-    Adapter_AdType_Interstitial,
-    Adapter_AdType_Video
+    Adapter_AdType_Interstitial = 0,
+    Adapter_AdType_Video = 1
+
 };
 
 @interface PubnativeAdapter () <PubnativeAdDelegate>
@@ -35,23 +36,16 @@ typedef NS_ENUM(int, Adapter_AdType)
 
 - (void)request:(Adapter_AdType)type withToken:(NSString*)appToken
 {
-    Pubnative_AdType adType = [self transformType:type];
+    Pubnative_AdType adType = Pubnative_AdType_Interstitial;
+    switch (type)
+    {
+        case Adapter_AdType_Interstitial:   adType = Pubnative_AdType_Interstitial;       break;
+        case Adapter_AdType_Video:          adType = Pubnative_AdType_VideoInterstitial;  break;
+    }
     [Pubnative requestAdType:adType
                 withAppToken:appToken
                  andDelegate:self];
 }
-
-- (Pubnative_AdType)transformType:(Adapter_AdType)type
-{
-    Pubnative_AdType result = -1;
-    switch (type)
-    {
-        case Adapter_AdType_Interstitial:   result = Pubnative_AdType_Interstitial;         break;
-        case Adapter_AdType_Video:          result = Pubnative_AdType_VideoInterstitial;    break;
-    }
-    return result;
-}
-
 
 #pragma mark - CALLBACKS -
 
@@ -67,7 +61,7 @@ typedef NS_ENUM(int, Adapter_AdType)
 - (void)pnAdReady:(UIViewController *)ad {}
 - (void)pnAdDidFail:(NSError *)error 
 {
-    UnitySendMessage("PNAdapter_Instance", "pn_ad_shown", [[NSString stringWithFormat:@"%@", [error localizedDescription]] UTF8String]);
+    UnitySendMessage("PNAdapter_Instance", "pn_ad_error", [[NSString stringWithFormat:@"%@", [error localizedDescription]] UTF8String]);
 }
 - (void)pnAdWillShow {}
 - (void)pnAdDidShow 
@@ -84,7 +78,7 @@ typedef NS_ENUM(int, Adapter_AdType)
 
 extern "C" void Pubnative_Request(Adapter_AdType adType, const char* appToken)
 {
-    NSString *appTokenString = [NSString stringWithCString:appToken encoding:nil];
+    NSString *appTokenString = [NSString stringWithCString:appToken encoding:NSUTF8StringEncoding];
     [[PubnativeAdapter sharedAdapter] request:adType withToken:appTokenString];
 }
 

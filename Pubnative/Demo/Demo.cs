@@ -4,14 +4,10 @@ using Pubnative;
 public class Demo : MonoBehaviour 
 {
     // Use this for initialization
-    private PNImage image;
-    private bool imageReady = false;
-    private GUISkin imageSkin;
-
     private PNNative native;
     private bool nativeReady = false;
     private GUISkin nativeSkin;
-
+	
     private string AppToken
     {
         get
@@ -37,11 +33,11 @@ public class Demo : MonoBehaviour
             string result = string.Empty;
             
             #if UNITY_EDITOR
-            result = "com.pubnative.PNLibrary";
+            result = "net.pubnative.unity.demo";
             #elif UNITY_ANDROID
-            result = "net.pubnative.demo";
+            result = "net.pubnative.unity.demo";
             #elif UNITY_IOS
-            result = "com.pubnative.PNLibrary";
+            result = "net.pubnative.unity.demo";
             #endif
             
             return result;
@@ -50,70 +46,26 @@ public class Demo : MonoBehaviour
 
     private void Start()
     {
-        if(image == null)
-        {
-            image = this.gameObject.AddComponent<PNImage>();
-            image.Fail += HandleFail;
-            image.Ready += HandleImageReady;
-        }
-
         if(native == null)
         {
             native = this.gameObject.AddComponent<PNNative>();
-            native.Fail += HandleFail;
-            native.Ready += HandleNativeReady;
+            native.Fail += PNAdapter_NativeFail;
+			native.Ready += PNAdapter_NativeReady;
         }
+        
+        PNAdapter.Loaded += PNAdapter_InterstitialLoaded;
+		PNAdapter.Error += PNAdapter_InterstitialError;
+		PNAdapter.Shown += PNAdapter_InterstitialShown;
+		PNAdapter.Closed += PNAdapter_InterstitialClosed;
     }
-
-    private Rect CenteredButtonRect(float widthPercent, float heightPercent, int position)
-    {
-        float screenWidth = Screen.width * widthPercent;
-        float screenHeight = Screen.height * heightPercent;
-
-        float xPosition = (Screen.width / 2) - (screenWidth / 2);
-        float yPosition = screenHeight * position;
-
-        return new Rect (xPosition, yPosition, screenWidth, screenHeight);
-    }
-
+    
     private void OnGUI()
     {
-        float buttonWidthPercent = 0.6f;
-        float buttonHeightPercent = 0.05f;
-
-        if(imageSkin == null)
-        {
-            imageSkin = (GUISkin) ScriptableObject.CreateInstance("GUISkin");
-        }
-
         if(nativeSkin == null)
         {
             nativeSkin = (GUISkin) ScriptableObject.CreateInstance("GUISkin");
         }
-
-        if(GUI.Button(CenteredButtonRect(buttonWidthPercent, buttonHeightPercent, 0),"REQUEST IMAGE AD"))
-        {
-            this.imageReady = false;
-            RequestImageAd();
-        }
-
-        if(imageReady)
-        {
-            GUI.skin = imageSkin;
-            if(GUI.Button(new Rect((Screen.width / 2) - 160, Screen.height - 50, 320, 50),""))
-            {
-                this.imageReady = false;
-                image.Open();
-            }
-            GUI.skin = null;
-        }
-
-        if(GUI.Button(CenteredButtonRect(buttonWidthPercent, buttonHeightPercent, 1),"REQUEST NATIVE AD"))
-        {
-            this.nativeReady = false;
-            RequestNativeAd();
-        }
-
+        
         if(nativeReady)
         {
             GUI.skin = nativeSkin;
@@ -124,38 +76,31 @@ public class Demo : MonoBehaviour
             }
             GUI.skin = null;
         }
-    }
-
-    private void RequestImageAd()
-    {   
-        image.AddParameter(PNImage.REQUEST_APP_TOKEN, this.AppToken);
-        image.AddParameter(PNImage.REQUEST_BUNDLE_ID, this.BundleID);
-        image.AddParameter(PNImage.REQUEST_BANNER_SIZE, "320x50");
-        image.RequestAd();
-    }
-
-    private void RequestNativeAd()
+	}
+    public void RequestNativeAd()
     {
+    	this.nativeReady = false;
         native.AddParameter(PNNative.REQUEST_APP_TOKEN, this.AppToken);
         native.AddParameter(PNNative.REQUEST_BUNDLE_ID, this.BundleID);
         native.AddParameter(PNNative.REQUEST_ICON_SIZE, "150x150");
         native.RequestAd();
     }
 
-    private void HandleImageReady ()
+    public void RequestInterstitialAd()
     {
-        if(image.banner != null)
-        {
-            imageSkin.button.normal.background = image.banner;
-            imageSkin.button.hover.background = image.banner;
-            imageSkin.button.active.background = image.banner;
-
-            this.imageReady = true;
-            image.ConfirmImpression();
-        }
+		this.nativeReady = false;
+        PNAdapter.Request(PNAdapter.AdType.Interstitial, this.AppToken);
     }
 
-    private void HandleNativeReady ()
+    public void RequestVideoInterstitialAd()
+    {
+		this.nativeReady = false;
+        PNAdapter.Request(PNAdapter.AdType.Video, this.AppToken);
+    }
+
+	#region Events
+
+	private void PNAdapter_NativeReady ()
     {
         if(native.icon != null)
         {
@@ -167,9 +112,31 @@ public class Demo : MonoBehaviour
             native.ConfirmImpression();
         }
     }
+    
+	private void PNAdapter_NativeFail ()
+	{
+		Debug.Log ("Download FAIL");
+	}
 
-    private void HandleFail ()
-    {
-        Debug.Log ("Download FAIL");
-    }
+	private void PNAdapter_InterstitialLoaded ()
+	{
+		Debug.Log("PNAdapter_InterstitialLoaded()");
+	}
+	
+	private void PNAdapter_InterstitialError (string obj)
+	{
+		Debug.Log("PNAdapter_InterstitialError("+obj+")");
+	}
+	
+	private void PNAdapter_InterstitialShown ()
+	{
+		Debug.Log("PNAdapter_InterstitialShown()");
+	}
+	
+	private void PNAdapter_InterstitialClosed ()
+	{
+		Debug.Log("PNAdapter_InterstitialClosed()");
+	}
+	
+	#endregion
 }

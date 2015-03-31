@@ -86,7 +86,6 @@ namespace Pubnative.Utils
 		
 		public bool AddLibrarySearchPaths( PBXList paths, bool recursive = true )
 		{
-			Debug.Log ("AddLibrarySearchPaths " + paths);
 			return this.AddSearchPaths( paths, LIBRARY_SEARCH_PATHS_KEY, recursive );
 		}
 

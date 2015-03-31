@@ -6,19 +6,47 @@ PubNative is an API-based publisher platform dedicated to native advertising whi
 
 Pubnative library is a collection of Open Source tools, to implement API based native ads in Unity.
 
-## Install
+## Contents
 
-### Source files
+* [Install](#install)
+* [Usage](#usage)
+    * [Native](#native)
+    * [Interstitials](#interstitials)
+        * [Android](#interstitials_android)
+        * [iOS](#interstitials_ios)
+            
+* [Misc](#misc)
+    * [Dependencies](#misc_dependencies)
+    * [License](#misc_license)
+    * [Contribution](#misc_contribution)
+
+
+<a name="install"></a>
+## Install
 
 1. Download the Pubnative repository
 2. Copy the Pubnative/ folder into your Unity project
 
-## Native request
+**Some other integration steps may be needed depending on the usage**
 
-1. To get native ads from our API you should import Pubnative namespace, add a PNNative behaviour in your node and hook Ready and Fail events from the behaviour
-2. Initialize a request setting up at least your *REQUEST_APP_TOKEN* *REQUEST_BUNDLE_ID* and if needed, set up required sizes for images with *REQUEST_ICON_SIZE* *REQUEST_BANNER_SIZE* *REQUEST_PORTRAIT_BANNER_SIZE* for respective sizes with detailed values in the [wiki](https://pubnative.atlassian.net/wiki/display/PUB/API+Documentation) for the native API. Once everything is set up, call RequestAd() to start the request
-3. Use returned data from data field to configure your own layout and invoke ConfirmImpression() when you show it on the screen.
-4. Once you want to open the ad (heading to device-store), call Open() method from the native ad
+<a name="usage"></a>
+## Usage
+
+<a name="native"></a>
+### Native
+
+* To get native ads from our API you should import Pubnative namespace, add a PNNative behaviour in your node and hook Ready and Fail events from the behaviour
+* Initialize a request setting up at least the following fields:
+    * **REQUEST\_APP_TOKEN**
+    * **REQUEST\_BUNDLE_ID**
+
+* If needed, set up required sizes for images with the following parameters:
+    * **REQUEST\_ICON_SIZE** 
+    * **REQUEST\_BANNER_SIZE** 
+    * **REQUEST\_PORTRAIT\_BANNER_SIZE** 
+
+* Use returned data from data field to configure your own layout and invoke ConfirmImpression() when you show it on the screen.
+* Once you want to open the ad (heading to device-store), call Open() method from the native ad
 
 ```cs
 private PNNative native;
@@ -59,61 +87,101 @@ private void OpenAd()
 }
 ```
 
-## Image request
+<a name="interstitials"></a>
+### Interstitials
 
-1. To get native ads from our API you should import Pubnative namespace, add a PNNative behaviour in your node and hook Ready and Fail events from the behaviour
-2. Initialize a request setting up at least your *REQUEST_APP_TOKEN* *REQUEST_BUNDLE_ID* and if needed, set up required size for image with *REQUEST_IMAGE_SIZE* with detailed values in the [wiki](https://pubnative.atlassian.net/wiki/display/PUB/API+Documentation) for the native API. Once everything is set up, call RequestAd() to start the request
-3. Use returned data from data field to configure your own layout and invoke ConfirmImpression() when you show it on the screen.
-4. To open the ad (heading to the device-store), call Open() method in the image holder.
+We are currently supporting 2 types of native interstitials that will work only in the generated project. 
+
+* **INTERSTITIAL**: This is a full screen interstitial
+* **VIDEO**: This is a full screen video
+
+In general therms you will need to:
+
+* Request through PNAdapter the desired Interstitial type with the desired APP_TOKEN
+* Configure your generated native project
 
 ```cs
-private PNImage image;
-private void InitializeAd()
+private void Start()
 {
-	image = this.gameObject.AddComponent<PNImage>();
-	image.Fail += HandleFail;
-	image.Ready += HandleReady;
+    PNAdapter.Loaded += PNAdapter_InterstitialLoaded;
+    PNAdapter.Error += PNAdapter_InterstitialError;
+    PNAdapter.Shown += PNAdapter_InterstitialShown;
+    PNAdapter.Closed += PNAdapter_InterstitialClosed;
 }
 
-private void RequestImageAd()
+public void RequestInterstitialAd()
 {
-	image.AddParameter(PNImage.REQUEST_APP_TOKEN, "<YOUR_APP_TOKEN>");
-	image.AddParameter(PNImage.REQUEST_BUNDLE_ID, "<YOUR_BUNDLE_ID>");
-	image.AddParameter(PNImage.REQUEST_BANNER_SIZE, "<SELECTED_BANNER_SIZE>");
-	image.RequestAd();
+    PNAdapter.Request(PNAdapter.AdType.Interstitial, <YOUR_APP_TOKEN>);
 }
 
-private void HandleReady ()
+public void RequestVideoInterstitialAd()
 {
-	Texture2D banner = image.banner;
-
-	//TODO: Set up your layout with returned texture
-
-	image.ConfirmImpression();
+    PNAdapter.Request(PNAdapter.AdType.Video, <YOUR_APP_TOKEN>);
 }
-
-private void HandleFail()
+    
+private void PNAdapter_InterstitialLoaded ()
 {
-	//TODO: Do whatever you need when call fails
+	Debug.Log("PNAdapter_InterstitialLoaded()");
 }
-
-private void OpenAd ()
+	
+private void PNAdapter_InterstitialError (string obj)
 {
-	image.Open();
+	Debug.Log("PNAdapter_InterstitialError("+obj+")");
+}
+	
+private void PNAdapter_InterstitialShown ()
+{
+	Debug.Log("PNAdapter_InterstitialShown()");
+}
+	
+private void PNAdapter_InterstitialClosed ()
+{
+	Debug.Log("PNAdapter_InterstitialClosed()");
 }
 ```
 
+To configure your native project, depends on the generated platform you will need to do different steps
+
+<a name="interstitials_android"></a>
+####Android
+
+* Download [pubnative-android-library](https://github.com/pubnative/pubnative-android-library) and add **pubnative-interstitials** and **pubnative-library** projects to your workspace.
+* Link **pubnative-interstitials** project to your generated project
+* Link **google-play-services-lib** to your generated project
+* Drag and drop **Pubnative/Editor/Android/PubnativeAdapter.java** file to your project
+* Add the following to your AndroidManifest file:
+
+```XML
+<activity
+android:name="net.pubnative.interstitials.PubNativeInterstitialsActivity"
+android:configChanges="keyboardHidden|orientation|screenSize"
+android:hardwareAccelerated="true"
+android:taskAffinity="net.pubnative.interstitials"
+android:theme="@style/Theme.PubNativeInterstitials" />
+<meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
+```
+
+<a name="interstitials_ios"></a>
+####iOS
+
+* Add AdSupport framework to the application target.
+
+<a name="misc"></a>
 ## Misc
 
-### Author
+<a name="misc_dependencies"></a>
+### Dependencies
 
-David Martin
+* [XUPorter](https://github.com/onevcat/XUPorter)
+* MiniJSON
 
+<a name="misc_license"></a>
 ### License
 
 This code is distributed under the terms and conditions of the MIT license. 
 
-### Contribution guidelines
+<a name="misc_contribution"></a>
+### Contribution
 
-If you fix a bug you discovered or have development ideas, feel free to make a pull request.
+**NB!** If you fix a bug you discovered or have development ideas, feel free to make a pull request.
 

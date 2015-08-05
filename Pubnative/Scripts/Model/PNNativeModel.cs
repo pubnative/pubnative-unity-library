@@ -41,8 +41,14 @@ namespace Pubnative.Model
             icon_url            = (string) data[KEY_ICON_URL];
             banner_url          = (string) data[KEY_BANNER_URL];
             portrait_banner_url = (string) data[KEY_PORTRAIT_BANNER_URL];
-            app_details         = new PNAppDetailsModel(((Hashtable) data[KEY_APP_DETAILS]));
-            beacons             = new PNBeaconsModel(((ArrayList) data[KEY_BEACONS]));
+			if(data.ContainsKey(KEY_APP_DETAILS))
+			{
+            	app_details         = new PNAppDetailsModel(((Hashtable) data[KEY_APP_DETAILS]));
+            }
+            if(data.ContainsKey(KEY_BEACONS))
+            {
+            	beacons             = new PNBeaconsModel(((ArrayList) data[KEY_BEACONS]));
+            }
         }
     }
 }

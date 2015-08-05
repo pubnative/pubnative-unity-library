@@ -27,7 +27,10 @@ namespace Pubnative.Model
             height      = Convert.ToInt32(data[KEY_HEIGHT]);
             image_url   = (string) data[KEY_IMAGE_URL];
             click_url   = (string) data[KEY_CLICK_URL];
-            beacons     = new PNBeaconsModel(((ArrayList) data[KEY_BEACONS]));
+            if(data.ContainsKey(KEY_BEACONS))
+            {
+            	beacons     = new PNBeaconsModel(((ArrayList) data[KEY_BEACONS]));
+            }
         }
     }
 }
